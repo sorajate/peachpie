@@ -426,6 +426,15 @@ namespace Pchp.Core
                 _string = string.Empty;
             }
 
+            /// <param name="capacity">Number of preallocated chunks. Makes sense for values greater than <c>1</c>.</param>
+            public Blob(int capacity) : this()
+            {
+                if (capacity > 1)
+                {
+                    _chunks = new object[capacity];
+                }
+            }
+
             public Blob(string x, string y)
             {
                 if (string.IsNullOrEmpty(y))
@@ -1513,19 +1522,24 @@ namespace Pchp.Core
         public bool ContainsBinaryData => _data is Blob b && b.ContainsBinaryData;
 
         /// <summary>
-        /// Gets value indicating the string is empty.
+        /// Gets value indicating the string is empty or uninitialized.
         /// </summary>
         public bool IsEmpty => IsDefault || (_data is string s && s.Length == 0) || (_data is Blob b && b.IsEmpty);
 
         /// <summary>
-        /// The value is not initialized.
+        /// The value is not initialized, representing <c>NULL</c>.
         /// </summary>
         public bool IsDefault => ReferenceEquals(_data, null);
 
         /// <summary>
-        /// Empty immutable string.
+        /// Empty immutable string representing the <see cref="string.Empty"/> (<c>""</c>).
         /// </summary>
         public static PhpString Empty => new PhpString(string.Empty);
+
+        /// <summary>
+        /// UNinitialized value of <see cref="PhpString"/>, representing <c>NULL</c>.
+        /// </summary>
+        public static readonly PhpString Default = default(PhpString);
 
         #region Construction, DeepCopy
 
@@ -1593,6 +1607,16 @@ namespace Pchp.Core
             //
             return new PhpString(b);
         }
+
+        /// <summary>
+        /// Gets the value as <see cref="PhpValue"/>.
+        /// </summary>
+        public static implicit operator PhpValue(PhpString value) => AsPhpValue(value);
+
+        /// <summary>
+        /// Operator.
+        /// </summary>
+        public static PhpString ToPhpString(byte[] value) => value;
 
         public PhpString DeepCopy() => new PhpString(this);
 
@@ -1791,11 +1815,6 @@ namespace Pchp.Core
                 }
             }
         }
-
-        /// <summary>
-        /// Gets the value as <see cref="PhpValue"/>.
-        /// </summary>
-        public static implicit operator PhpValue(PhpString value) => AsPhpValue(value);
 
         /// <summary>
         /// Gets bytes count when converted to bytes using provided <paramref name="encoding"/>.

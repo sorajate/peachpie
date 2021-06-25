@@ -648,10 +648,19 @@ namespace Pchp.Library.Standard
         /// </summary>
         /// <param name="needle">The value to search for.</param>
         /// <param name="haystack">The <see cref="PhpArray"/> where to search.</param>
-        /// <param name="strict">Whether strict comparison method (operator ===) is used for comparing values.</param>
         /// <returns>Whether there is the <paramref name="needle"/> value in the <see cref="PhpArray"/>.</returns>
         /// <exception cref="PhpException"><paramref name="haystack"/> is a <B>null</B> reference (Warning).</exception>
-        public static bool in_array(PhpValue needle, PhpArray haystack, bool strict = false)
+        public static bool in_array(PhpValue needle, PhpArray haystack) => in_array(needle, haystack, strict: false);
+
+        /// <summary>
+        /// Checks if a value exists in an array.
+        /// </summary>
+        /// <param name="needle">The value to search for.</param>
+        /// <param name="haystack">The <see cref="PhpArray"/> where to search.</param>
+        /// <param name="strict">Whether strict comparison method (operator ===) is used for comparing values. Default is <c>false</c>.</param>
+        /// <returns>Whether there is the <paramref name="needle"/> value in the <see cref="PhpArray"/>.</returns>
+        /// <exception cref="PhpException"><paramref name="haystack"/> is a <B>null</B> reference (Warning).</exception>
+        public static bool in_array(PhpValue needle, PhpArray haystack, bool strict /*= false*/)
         {
             var b = array_search(needle, haystack, strict);
             return !b.IsBoolean || b.Boolean;
@@ -705,17 +714,32 @@ namespace Pchp.Library.Standard
 
         #endregion
 
+        #region array_is_list
+
+        /// <summary>
+        /// Gets value indicating the given array is keyd from 0.. without holes.
+        /// </summary>
+        /// <param name="array">Array instance, cannot be <c>null</c>.</param>
+        public static bool array_is_list(PhpArray array)
+        {
+            if (array == null) PhpException.ArgumentNull(nameof(array));
+
+            return Core.Utilities.RuntimeExtensions.IsList(array);
+        }
+
+        #endregion
+
         #region array_fill, array_fill_keys, array_pad
 
         /// <summary>
-		/// Creates a new array filled with a specified value.
-		/// </summary>
-		/// <param name="startIndex">The value of the key of the first item in the array.</param>
-		/// <param name="count">The number of items in the array.</param>
-		/// <param name="value">The value copied to all items in the array.</param>
-		/// <returns>The array.</returns>
-		/// <exception cref="PhpException">Thrown if <paramref name="count"/> is not positive.</exception>
-		public static PhpArray array_fill(int startIndex, int count, PhpValue value)
+        /// Creates a new array filled with a specified value.
+        /// </summary>
+        /// <param name="startIndex">The value of the key of the first item in the array.</param>
+        /// <param name="count">The number of items in the array.</param>
+        /// <param name="value">The value copied to all items in the array.</param>
+        /// <returns>The array.</returns>
+        /// <exception cref="PhpException">Thrown if <paramref name="count"/> is not positive.</exception>
+        public static PhpArray array_fill(int startIndex, int count, PhpValue value)
         {
             if (count < 0)
             {
